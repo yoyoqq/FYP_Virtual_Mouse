@@ -1,0 +1,1 @@
+Install the Hagrid dataset in this dir -> https://www.kaggle.com/datasets/kapitanov/hagrid/data
