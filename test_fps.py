@@ -192,11 +192,11 @@ def main(file_path):
 
                 # LeftClick
                 elif keypoint_classifier_labels[hand_sign_id] == "LeftClick":
-                    pyautogui.click()
-                    pyautogui.sleep(0.2)
+                    if pointer.click():
+                        pyautogui.click()
                 elif keypoint_classifier_labels[hand_sign_id] == "RightClick":
-                    pyautogui.click(button='right')
-                    pyautogui.sleep(0.2)
+                    if pointer.click():
+                        pyautogui.click(button='right')
                 elif keypoint_classifier_labels[hand_sign_id] == "ScrollUp":
                     pyautogui.scroll(scroll.scrollUp())
                 elif keypoint_classifier_labels[hand_sign_id] == "ScrollDown":
@@ -536,7 +536,7 @@ def calculate_fps_and_accuracy(fps, accuracy):
         max_gesture_count = max(max_gesture_count, v)
         total_count += v
     
-    return [average_fps, max_gesture_count / total_count] 
+    return [average_fps, max_gesture_count / total_count if total_count != 0 else 1] 
 
 if __name__ == '__main__':
     import os 
@@ -552,11 +552,12 @@ if __name__ == '__main__':
     # train for 
     # print(main(full_paths[0]))  # returns allfps (list) and accuracy (dict)
 
-    names = ["Nothing", "Pointer", "LeftClick", "RightClick", "ScrollUp", "ScrollDown"]
+
+    names = ["Nothing", "Pointer", "LeftClick", "RightClick", "ScrollUp", "ScrollDown", "void"]
     # train for all the videos
     for idx, file_path in enumerate(full_paths):
         fps_and_accuracy = main(file_path)
         fps, acc = calculate_fps_and_accuracy(fps_and_accuracy[0], fps_and_accuracy[1])
         print(f"The {names[idx]} has fps: {fps} and accuracy: {acc}")
-    
+        
         
