@@ -8,13 +8,14 @@ from collections import Counter
 from collections import deque
 import math
 import pyautogui
-
+pyautogui.FAILSAFE= True
 import cv2 as cv
 import numpy as np
 import mediapipe as mp
 
 from utils import CvFpsCalc
 from model import KeyPointClassifier
+from collections import defaultdict
 
 
 def get_args():
@@ -36,7 +37,7 @@ def get_args():
     return args
 
 
-def main():
+def main(file_path):
     # POINTER CONFIG 
     number_of_circles = 3
     mouse_increments = 10
@@ -57,7 +58,8 @@ def main():
 
     # Camera preparation ###############################################################
     # cap = cv.VideoCapture(cap_device)
-    cap = cv.VideoCapture(0, cv.CAP_DSHOW)
+    # cap = cv.VideoCapture(0, cv.CAP_DSHOW)
+    cap = cv.VideoCapture(file_path)
     cap.set(cv.CAP_PROP_FRAME_WIDTH, width)
     cap.set(cv.CAP_PROP_FRAME_HEIGHT, height)
 
@@ -100,10 +102,12 @@ def main():
 
     #  ########################################################################
     mode = 0
-
+    all_fps = []
+    all_accuracy = defaultdict(int)
     while True:
         fps = cvFpsCalc.get()
-
+        all_fps.append(fps)
+        
         # Process Key (ESC: end) #################################################
         key = cv.waitKey(10)
         if key == 27:  # ESC
@@ -164,6 +168,8 @@ def main():
                     finger_gesture_history).most_common()
                 # print(most_common_fg_id)
 
+                all_accuracy[keypoint_classifier_labels[hand_sign_id]] += 1
+
                 # MAKE GESTURE
                 if keypoint_classifier_labels[hand_sign_id] == "Nothing": pass
                 elif keypoint_classifier_labels[hand_sign_id] == "Pointer":
@@ -186,11 +192,11 @@ def main():
 
                 # LeftClick
                 elif keypoint_classifier_labels[hand_sign_id] == "LeftClick":
-                    if pointer.click():
-                        pyautogui.click()
+                    pyautogui.click()
+                    pyautogui.sleep(0.2)
                 elif keypoint_classifier_labels[hand_sign_id] == "RightClick":
-                    if pointer.click():
-                        pyautogui.click(button='right')
+                    pyautogui.click(button='right')
+                    pyautogui.sleep(0.2)
                 elif keypoint_classifier_labels[hand_sign_id] == "ScrollUp":
                     pyautogui.scroll(scroll.scrollUp())
                 elif keypoint_classifier_labels[hand_sign_id] == "ScrollDown":
@@ -224,6 +230,8 @@ def main():
 
     cap.release()
     cv.destroyAllWindows()
+    
+    return [all_fps, all_accuracy]
 
 class Scroll():
     def __init__(self) -> None:
@@ -269,7 +277,7 @@ class Pointer():
         self.update_center = True
         self.click_delay = 20
         self.click_cur_delay = 0
-    
+        
     def move_pointer_delay(self) -> bool:
         if self.pointer_delay[0] == self.pointer_delay[1]:
             self.pointer_delay[0] = 0
@@ -352,7 +360,6 @@ class Pointer():
             self.click_cur_delay = 0
             return True
         return False
-    
 
 def draw_circle(image, circles_radius: list, center):
     for radius in circles_radius:
@@ -472,15 +479,7 @@ def draw_info_text(image, brect, handedness, hand_sign_text):
     cv.putText(image, info_text, (brect[0] + 5, brect[1] - 4),
                cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1, cv.LINE_AA)
 
-    # if finger_gesture_text != "":
-    #     cv.putText(image, "Finger Gesture:" + finger_gesture_text, (10, 60),
-    #                cv.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 4, cv.LINE_AA)
-    #     cv.putText(image, "Finger Gesture:" + finger_gesture_text, (10, 60),
-    #                cv.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2,
-    #                cv.LINE_AA)
-
     return image
-
 
 
 def draw_point_history(image, point_history):
@@ -528,6 +527,36 @@ def center_window(window_name, width, height):
     # Move the OpenCV window to the center
     cv.moveWindow(window_name, position_x, position_y) 
 
+def calculate_fps_and_accuracy(fps, accuracy):
+    fps[0] = 0  # the first one is very large due to initialization 
+    average_fps = sum(fps)/len(fps)
+    total_count = 0
+    max_gesture_count = 0
+    for k, v in accuracy.items():
+        max_gesture_count = max(max_gesture_count, v)
+        total_count += v
+    
+    return [average_fps, max_gesture_count / total_count] 
+
 if __name__ == '__main__':
+    import os 
     x, y = move_pointer_to_center()
-    main()
+
+    # get path of the training files 
+    folder_path = './Dataset/TrainingVideos'
+    
+    files = os.listdir(folder_path)
+    full_paths = [os.path.join(folder_path, file) for file in files]
+    # print(full_paths)
+
+    # train for 
+    # print(main(full_paths[0]))  # returns allfps (list) and accuracy (dict)
+
+    names = ["Nothing", "Pointer", "LeftClick", "RightClick", "ScrollUp", "ScrollDown"]
+    # train for all the videos
+    for idx, file_path in enumerate(full_paths):
+        fps_and_accuracy = main(file_path)
+        fps, acc = calculate_fps_and_accuracy(fps_and_accuracy[0], fps_and_accuracy[1])
+        print(f"The {names[idx]} has fps: {fps} and accuracy: {acc}")
+    
+        
