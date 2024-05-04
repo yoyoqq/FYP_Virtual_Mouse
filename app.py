@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import csv
 import copy
 import argparse
@@ -15,7 +13,7 @@ import mediapipe as mp
 
 from utils import CvFpsCalc
 from model import KeyPointClassifier
-
+pyautogui.FAILSAFE = False
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -38,7 +36,7 @@ def get_args():
 
 def main():
     # POINTER CONFIG 
-    number_of_circles = 3
+    number_of_circles = 2
     mouse_increments = 10
     circle_increment = 0.13
 
@@ -138,10 +136,6 @@ def main():
                 # Conversion to relative coordinates / normalized coordinates
                 pre_processed_landmark_list = pre_process_landmark(
                     landmark_list)
-                # pre_processed_point_history_list = pre_process_point_history(
-                #     debug_image, point_history)
-                # Write to the dataset file
-                # logging_csv(number, mode, pre_processed_landmark_list,
                 logging_csv(number, mode, pre_processed_landmark_list)
 
                 # Hand sign classification
@@ -153,10 +147,6 @@ def main():
 
                 # Finger gesture classification
                 finger_gesture_id = 0
-                # point_history_len = len(pre_processed_point_history_list)
-                # if point_history_len == (history_length * 2):
-                #     finger_gesture_id = point_history_classifier(
-                #         pre_processed_point_history_list)
 
                 # Calculates the gesture IDs in the latest detection
                 finger_gesture_history.append(finger_gesture_id)
@@ -192,16 +182,16 @@ def main():
                     if pointer.click():
                         pyautogui.click(button='right')
                 elif keypoint_classifier_labels[hand_sign_id] == "ScrollUp":
-                    pyautogui.scroll(scroll.scrollUp())
-                elif keypoint_classifier_labels[hand_sign_id] == "ScrollDown":
                     pyautogui.scroll(scroll.scrollDown())
-                    
+                elif keypoint_classifier_labels[hand_sign_id] == "ScrollDown":
+                    pyautogui.scroll(scroll.scrollUp())
                     
                 # reset variables
                 if keypoint_classifier_labels[hand_sign_id] != "ScrollUp" or keypoint_classifier_labels[hand_sign_id] != "ScrollDown":
                     scroll.reset()
                 if keypoint_classifier_labels[hand_sign_id] != "Pointer":
                     pointer.update_center = True
+                    
                 # Drawing part
                 debug_image = draw_bounding_rect(use_brect, debug_image, brect)
                 # debug_image = draw_landmarks(debug_image, landmark_list)
