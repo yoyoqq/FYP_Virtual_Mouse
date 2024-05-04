@@ -10,3 +10,8 @@
 GUIDE ---------------------
 
 See Mouse commands.png
+
+
+
+
+The model contains 4 connected components. The first step consists of a camera or video feeding its output to the application. The frames are captured and passed to the next step. Then, the palm needs is identified and the hand is detected. Once detected, the hand landmark positions are extracted. As a result, the coordinates X and Y of each landmark is stored. On the third step, with the hand landmark coordinates the gesture is passed into a classification algorithm and the gesture type is obtained. Lastly, the gesture action is executed.
