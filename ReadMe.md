@@ -16,6 +16,7 @@ A real-time **hand gesture recognition system** that replaces the physical mouse
 - **Paradigms**: OOP design for modularity and extensibility  
 
 ## 📂 Project Structure  
+```bash
 FYP_Virtual_Mouse/
 │── dataset/          # Collected hand gesture data  
 │── models/           # Trained ML/DL models  
@@ -24,22 +25,28 @@ FYP_Virtual_Mouse/
 │── utils/            # Helper functions  
 │── requirements.txt  # Dependencies  
 │── README.md         # Project documentation  
-
+```
 
 ## ⚙️ Installation & Usage
+```bash
 git clone https://github.com/yoyoqq/FYP_Virtual_Mouse.git
 cd FYP_Virtual_Mouse
 pip install -r requirements.txt
 python src/main.py
-
-
+```
 
 ## 📊 Results
-Gesture Recognition Accuracy: 97%
-Latency: Reduced to under 5 ms
-Expo: Showcased as a Top 5% Project in the University of Greenwich Expo
+- **Gesture Recognition Accuracy**: 97%  
+- **Latency**: Reduced to under 5 ms  
+- **Expo**: Showcased as a Top 5% Project in the University of Greenwich Expo  
 
-🔗 Links
-Link: https://www.gre.ac.uk/digital-shark-expo/web-and-mobile-applications/yangan-yagol-xu-chen
+## 📸 Demo  
+![Virtual Mouse Demo](demo.gif)  
+*(Add a screen recording or GIF of your system in action)*  
 
+## 🔗 Links
+- [📂 GitHub Repository](https://github.com/yoyoqq/FYP_Virtual_Mouse)  
+- [🎓 University Expo Showcase](https://www.gre.ac.uk/digital-shark-expo/web-and-mobile-applications/yangan-yagol-xu-chen)  
 
+## 📜 License  
+This project is licensed under the **MIT License**.  
